@@ -1,12 +1,15 @@
 import { gsap } from "gsap";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
+import { MorphSVGPlugin } from "gsap/MorphSVGPlugin";
 
-gsap.registerPlugin(DrawSVGPlugin);
+gsap.registerPlugin(DrawSVGPlugin, MorphSVGPlugin);
 
 const sonGenerique = document.querySelector("audio");
 const btnEl = document.querySelector("button");
 const titleEl = document.querySelector(".title");
-const pathEls = document.querySelectorAll("path");
+const titleSVG = document.querySelector(".title-svg");
+const pathEls = titleSVG.querySelectorAll("path");
+const groupSVG = document.getElementById("LA_SCENE_EST_VIDE").querySelector("g");
 
 let isPlay = false;
 
@@ -20,38 +23,54 @@ btnEl.addEventListener("click", () => {
   }
 });
 
+const svgns = "http://www.w3.org/2000/svg";
 const tl = gsap.timeline({ paused: true });
+pathEls.forEach((path, i) => {
+  path.style.opacity = 0;
+  // CIRCLE
+  // const point = document.createElementNS(svgns, "circle");
+  // const x = 80 + 30 * i;
+  // const color = "#FBFAF5";
+  // point.setAttributeNS(null, "id", "points");
+  // point.setAttributeNS(null, "cx", x);
+  // point.setAttributeNS(null, "cy", 100);
+  // point.setAttributeNS(null, "r", 10);
+  // point.style.fill = color;
 
-pathEls.forEach((path) => {
-  tl.fromTo(
-    path,
-    { drawSVG: "0%", strokeWidth: 4, stroke: "white" },
-    {
-      duration: 45,
-      strokeWidth: 1,
-      drawSVG: "100%",
-      stroke: "red",
-      stagger: 0.1,
-      yoyo: true,
-      repeat: 5,
+  // RECT
+  const point = document.createElementNS(svgns, "rect");
+  const x = -20 + 40 * i;
+  const y = -130;
+  const width = 35;
+  const height = 400;
+  const color = "#FBFAF5";
+  point.setAttributeNS(null, "id", "points");
+  point.setAttributeNS(null, "x", x);
+  point.setAttributeNS(null, "y", y);
+  point.setAttributeNS(null, "width", width);
+  point.setAttributeNS(null, "height", height);
+  point.style.fill = color;
 
-      onComplete: () => {
-        console.log("complete");
-      },
-    },
-    "<"
-  );
+  groupSVG.appendChild(point);
+
+  MorphSVGPlugin.convertToPath("#points");
 });
 
+const pointsSVG = document.querySelectorAll("#points");
+pointsSVG.forEach((point, i) => {
+  tl.to(point, { duration: 50, morphSVG: pathEls[i], delay: 0.4 }, "<");
+});
+
+// PART 1
+// tl.to("#circle", { duration: 30, morphSVG: pathEls[0] });
+// tl.to("#circle", { duration: 30, morphSVG: pathEls[1] }, "<");
+
+// PART 2
+
 tl.fromTo(
-  titleEl,
+  titleSVG,
+  {},
   {
-    scale: 10,
-    rotation: 450,
-  },
-  {
-    scale: 1,
-    rotation: 0,
     duration: 40,
   },
   "<"
@@ -59,10 +78,9 @@ tl.fromTo(
 
 let tlLaunched = false;
 
-sonGenerique.addEventListener("timeupdate", () => {
-  console.log(sonGenerique.currentTime && !tlLaunched);
-  if (sonGenerique.currentTime > 16) {
-    tl.play();
-    tlLaunched = true;
-  }
+sonGenerique.addEventListener("pause", () => {
+  tl.pause();
+});
+sonGenerique.addEventListener("play", () => {
+  tl.play();
 });
