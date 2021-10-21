@@ -9,7 +9,7 @@ const btnEl = document.querySelector("button");
 const titleEl = document.querySelector(".title");
 const titleSVG = document.querySelector(".title-svg");
 const pathEls = titleSVG.querySelectorAll("path");
-const groupSVG = document.getElementById("LA_SCENE_EST_VIDE").querySelector("g");
+const groupSVG = document.getElementById("LA_SCENE_EST_VIDE");
 
 let isPlay = false;
 
